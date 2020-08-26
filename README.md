@@ -18,8 +18,6 @@ TBD
 
 ## Server API
 
-**TBD***
-
 ### Get reservation information
   * GET `/rooms/:room_id/reservation`
 
@@ -59,6 +57,23 @@ TBD
       }
   ```
   (Note: for purposes of SDC the server will assign the submitted reservation to a random user account)
+
+  ### Update existing room information
+  * PATCH `/rooms/:room_id`
+
+  **Path Parameters:**
+    * `room_id` room ID
+
+  **Sucess Status Code:** `200`
+
+  **Request Body**: Expects JSON with the following keys:
+  ```json
+      {
+        "minimum_stay": "Number",
+        "maximum_guest": "Number",
+        "nightly_fee": "Number"
+      }
+  ```
 
 ### Delete an existing reservation
   * DELETE `/rooms/:room_id/reservation`
