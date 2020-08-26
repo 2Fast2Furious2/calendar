@@ -4,23 +4,27 @@
 
 ## Related Projects
 
+TBD
+
 ## Table of Contents
 
 1. [Usage](#Usage)
-1. [Requirements](#requirements)
+1. [Server API](#ServerAPI)
 1. [Development](#development)
 
 ## Usage
+
+TBD
 
 ## Server API
 
 **TBD***
 
-### Get restaurant info
-  * GET `/api/restaurants/:id`
+### Get reservation information
+  * GET `/rooms/:room_id/reservation`
 
 **Path Parameters:**
-  * `id` restaurant id
+  * `room_id` room ID
 
 **Success Status Code:** `200`
 
@@ -28,23 +32,18 @@
 
 ```json
     {
-      "id": "Number",
-      "name": "String",
-      "address": "String",
-      "phone": "String",
-      "website": "String",
-      "cost": "Number"
+      "nightly_fee" : "smallint",
+      "rating" : "decimal",
+      "reviews" : "smallint",
+      "minimum_stay" : "tinyint",
+      "maximum_guest" : "tinyint",
+      "booked_date" : "Array(Date)"
     }
-```
-
 ```
 
 ## Requirements
 
-An `nvmrc` file is included if using [nvm](https://github.com/creationix/nvm).
-
-- Node 6.13.0
-- etc
+TBD
 
 ## Development
 
@@ -57,3 +56,13 @@ npm install -g webpack
 npm install
 ```
 
+## Development
+
+### Installing Dependencies
+
+From within the root directory:
+
+```sh
+npm install -g webpack
+npm install
+```
