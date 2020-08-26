@@ -4,10 +4,6 @@
 
 ## Related Projects
 
-  - https://github.com/7LuckyAirbnboiiz/gallery
-  - https://github.com/7LuckyAirbnboiiz/reviews-section
-  - https://github.com/7LuckyAirbnboiiz/image_carousel
-
 ## Table of Contents
 
 1. [Usage](#Usage)
@@ -16,7 +12,32 @@
 
 ## Usage
 
-> Some usage instructions
+## Server API
+
+**TBD***
+
+### Get restaurant info
+  * GET `/api/restaurants/:id`
+
+**Path Parameters:**
+  * `id` restaurant id
+
+**Success Status Code:** `200`
+
+**Returns:** JSON
+
+```json
+    {
+      "id": "Number",
+      "name": "String",
+      "address": "String",
+      "phone": "String",
+      "website": "String",
+      "cost": "Number"
+    }
+```
+
+```
 
 ## Requirements
 

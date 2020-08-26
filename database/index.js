@@ -11,8 +11,7 @@ const mysqlConfig = require('./config.js');
 
 // For docker network
 module.exports.connection = mysql.createConnection({
-  host     : '172.17.0.2',
+  host     : 'localhost',
   user     : 'root',
   database : 'calendar',
-  port     : '3306'
 });
