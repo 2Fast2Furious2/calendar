@@ -30,11 +30,11 @@ TBD
 
 ```json
     {
-      "nightly_fee" : "smallint",
-      "rating" : "decimal",
-      "reviews" : "smallint",
-      "minimum_stay" : "tinyint",
-      "maximum_guest" : "tinyint",
+      "nightly_fee" : "Number",
+      "rating" : "Decimal",
+      "reviews" : "Number",
+      "minimum_stay" : "Number",
+      "maximum_guest" : "Number",
       "booked_date" : "Array(Date)"
     }
 ```

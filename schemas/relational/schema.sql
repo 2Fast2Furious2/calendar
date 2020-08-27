@@ -1,34 +1,34 @@
 /*schema file for Postgresql*/
 
-/*TBD: define table keys, constraints*/
-
 create table rooms (
-  room_id integer,
-  nightly_fee integer,
-  rating decimal(3,2),
-  minimum_stay integer,
-  maximum_guest integer,
-
+  room_id integer PRIMARY KEY,
+  nightly_fee integer NOT NULL,
+  reviews integer DEFAULT 0,
+  rating decimal(3,2) DEFAULT 0,
+  minimum_stay integer DEFAULT 1,
+  maximum_guest integer DEFAULT 1
 );
 
+/*will match original schema: i.e. one record for each day of a stay*/
 create table reservations (
-    room_id integer,
-  reservation_id integer,
-  booked_date date,
+  room_id integer references rooms(room_id),
+  reservation_id integer references reservation_info(reservation_id),
+  booked_date date NOT NULL
 );
 
 create table reservation_info (
-  reservation_id integer,
-  user_id integer,
-  start_date date,
-  end_date date,
-  num_adults integer,
-  num_children integer,
-  num_infants integer
+  reservation_id integer PRIMARY KEY,
+  room_id references rooms(room_id),
+  user_id integer NOT NULL,
+  start_date date NOT NULL,
+  end_date date NOT NULL,
+  num_adults integer NOT NULL,
+  num_children integer NOT NULL,
+  num_infants integer NOT NULL
 );
 
 create table reviews (
-  user_id integer,
-  room_id integer,
-  score integer
+  room_id integer references rooms(room_id),
+  user_id integer NOT NULL,
+  score integer NOT NULL
 );
