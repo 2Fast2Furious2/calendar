@@ -15,11 +15,8 @@ let roomSchema = mongoose.Schema({
   minimumStay: Number,
   maximumGuest: Number,
   bookedDate: [{
-    userId: Number,
+    reservationId: Number,
     date: Date,
-    numAdults: Number,
-    numChildren: Number,
-    numInfants: Number
   }]
 });
 
@@ -29,3 +26,14 @@ let reviewSchema = mongoose.Schema({
   userId: Number,
   score: Number
 });
+
+let reservationSchema = mongoose.Schema({
+  reservationId: {
+    type: Number,
+    unique: true
+  },
+  userId: Number,
+  numAdults: Number,
+  numChildren: Number,
+  numInfants: Number
+})
