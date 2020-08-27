@@ -15,25 +15,29 @@ let roomSchema = mongoose.Schema({
   minimumStay: Number,
   maximumGuest: Number,
   bookedDate: [{
-    reservationId: Number,
+    reservationId: mongoose.ObjectId, //should reference reservationId in reservationSchema
     date: Date,
   }]
 });
 
 //stores review information for rooms.  Record count and average score should be calculated from this data and saved to the relevant room ID in the roomSchema
 let reviewSchema = mongoose.Schema({
-  roomId: Number,
+  roomId: mongoose.ObjectId, //schould reference roomId in roomSchema
   userId: Number,
   score: Number
 });
 
+//stores primary details for a given reservation
 let reservationSchema = mongoose.Schema({
   reservationId: {
     type: Number,
     unique: true
   },
+  roomId: mongoose.ObjectId, //should reference roomId in roomSchema
   userId: Number,
   numAdults: Number,
   numChildren: Number,
-  numInfants: Number
+  numInfants: Number,
+  startDate: Date,
+  endDate: Date,
 })
