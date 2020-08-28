@@ -11,11 +11,11 @@ Reservations: controls the average number of reservations for a given room
 */
 //rooms
 const numRooms = 10000000;
-const reservationRange = [1,5];
+const reservationRange = [1,3];
 const maxGuestsRange = [1,8];
 const nightlyFeeRange = [10,200];
 const cleaningFeeRange = [10,100];
-const serviceFeeRange = [.10, .20];
+const serviceFeeRange = [.10, .15, .20];
 
 //reiew variables
 const avgReviews = 50;
@@ -34,7 +34,9 @@ const counterMax = 1000;
 const roomArray = [];
 
 
-//functions
+//function declarations
+
+/*---RANDOM NUMBER SCRIPTS: USE THESE IN PLACE OF MATH.RANDOM()---*/
 
 //generate a preset array of random numbers
 function generateRandomArray() {
@@ -50,18 +52,42 @@ function randomNumber() {
   return rng;
 }
 
+/*---Data generation scripts---*/
 
 //generate a list of rooms and add them to the roomArray
 function generateRooms(maxRooms) {
+  //create arrays of possible values, based on global variable settings;
+  let reservationOptions= [];
+  let guestCountOptions = [];
+  let nightlyFeeOptions = [];
+  let cleaningFeeOptions = [];
+  let serviceFeeOptions = [];
+
+  for(let i = reservationRange[0]; i <= reservationRange[1]; i++) {
+    reservationOptions.push(i);
+  }
+
+  for(let i = maxGuestsRange[0]; i <= maxGuestsRange[1]; i++) {
+    guestCountOptions.push(i);
+  }
+
+  for(let i = nightlyFeeRange[0]; i <= nightlyFeeRange[1]; i++) {
+    nightlyFeeOptions.push(i);
+  }
+
+  for(let i = cleaningFeeRange[0]; i <= cleaningFeeRange[1]; i++) {
+    cleaningFeeOptions.push(i);
+  }
+
   for(let i = 0; i < maxRooms; i++) {
 
 
     let roomId = i;
-    let maxGuests = 0; //TBD
-    let minReservation = 0; //TBD
-    let nightlyFee = 0; //TBD
-    let cleaningFee = 0; //TBD
-    let serviceFee = 0; //TBD;
+    let maxGuests = guestCountOptions[Math.floor(randomNumber() * guestCountOptions.length)];
+    let minReservation = reservationOptions[Math.floor(randomNumber() * reservationOptions.length)];
+    let nightlyFee = nightlyFeeOptions[Math.floor(randomNumber() * nightlyFeeOptions.length)]; //TBD
+    let cleaningFee = cleaningFeeOptions[Math.floor(randomNumber() * cleaningFeeOptions.length)]; //TBD
+    let serviceFee = serviceFeeRange[Math.floor(randomNumber() * serviceFeeRange.length)]; //TBD;
 
     roomArray.push({
       'roomId': roomId,
@@ -84,5 +110,5 @@ generateRandomArray();
 generateRooms(10);
 console.log(roomArray);
 //console.log(randomArray);
-console.log(randomNumber());
-console.log(randomNumber());
+//console.log(randomNumber());
+//console.log(randomNumber());
