@@ -31,6 +31,8 @@ TBD
 ```json
     {
       "nightly_fee" : "Number",
+      "cleaning_fee": "Number",
+      "service_fee": "Decimal",
       "rating" : "Decimal",
       "reviews" : "Number",
       "minimum_stay" : "Number",
@@ -38,6 +40,8 @@ TBD
       "booked_date" : "Array(Date)"
     }
 ```
+
+NOTE: AirBNB uses variable pricing per night: the nightly_fee returned represents an average.
 
 ### Create a new reservation
   * POST `/rooms/:room_id/reservation`

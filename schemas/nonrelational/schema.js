@@ -39,5 +39,5 @@ let reservationSchema = mongoose.Schema({
   numChildren: Number,
   numInfants: Number,
   startDate: Date,
-  endDate: Date,
-})
+  endDate: Date
+});
