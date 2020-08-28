@@ -12,3 +12,6 @@ config.js
 
 # test coverage folder
 coverage/
+
+#test file output
+seeding/output

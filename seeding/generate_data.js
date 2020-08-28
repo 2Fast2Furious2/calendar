@@ -2,12 +2,11 @@
 //should generate a set of files that can be used in multiple dbs to generate data
 
 const fs = require('fs');
+const stream = require('stream');
 const moment = require('moment');
 
 /*global variable declarations
-Rooms: controls record of numbef of rooms, range of minimum days for a reservation, and range of maximum number of guests
-Reviews: controls the average number of reviews for a given room, and the review score range as an integer array with [min,max]
-Reservations: controls the average number of reservations for a given room
+Range global variables should specifiy a minimum/maximum value in a two record array unless otherwise specified.
 */
 //rooms
 const numRooms = 10000000;
@@ -15,6 +14,7 @@ const reservationRange = [1,3];
 const maxGuestsRange = [1,8];
 const nightlyFeeRange = [10,200];
 const cleaningFeeRange = [10,100];
+//unlike the above, serviceFeeRange should use a defined array of fees.  This is to avoid unexpected results with float math
 const serviceFeeRange = [.10, .15, .20];
 
 //reiew variables
@@ -57,6 +57,33 @@ function randomNumber() {
 //data should be in an array format.  File will be saved to the ./output directory
 function saveFile(data, fileName) {
 
+  let filepath = ('./output/').concat(fileName);
+  console.log('Writing data to ' + filepath);
+
+  const writeStream = fs.createWriteStream(filepath);
+
+  const writeToFile = function(record) {
+    if(!writeStream.write(`${JSON.stringify(record)}\n`)) {
+      writeStream.once('drain',() => {writeToFile(record)});
+    }
+  }
+
+  data.forEach(record => {
+
+    //writeStream.write(`${JSON.stringify(record)}\n`);
+    writeToFile(record);
+
+  });
+
+  writeStream.on('finish', () => {
+    console.log(`Data written to ${filepath}`);
+  });
+
+  writeStream.on('error', (err) => {
+    console.error(`There is an error writing the file ${pathName} => ${err}`)
+  });
+
+  writeStream.end();
 }
 
 /*---Data generation scripts---*/
@@ -111,11 +138,12 @@ function generateRooms(maxRooms) {
 
 //seed random number database
 generateRandomArray();
-
+console.log("Generating room data...");
+generateRooms(2000000);
+saveFile(roomArray, 'room_data.txt');
 
 //console log testing
-generateRooms(numRooms);
-console.log(roomArray);
+//console.log(roomArray);
 //console.log(randomArray);
 //console.log(randomNumber());
 //console.log(randomNumber());
