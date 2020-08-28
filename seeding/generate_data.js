@@ -55,6 +55,7 @@ function randomNumber() {
 /*---Save file script---*/
 
 //data should be in an array format.  File will be saved to the ./output directory
+//TBD: handle logic for splitting files
 function saveFile(data, fileName) {
 
   let filepath = ('./output/').concat(fileName);
@@ -139,7 +140,7 @@ function generateRooms(maxRooms) {
 //seed random number database
 generateRandomArray();
 console.log("Generating room data...");
-generateRooms(2000000);
+generateRooms(numRooms);
 saveFile(roomArray, 'room_data.txt');
 
 //console log testing
