@@ -52,6 +52,13 @@ function randomNumber() {
   return rng;
 }
 
+/*---Save file script---*/
+
+//data should be in an array format.  File will be saved to the ./output directory
+function saveFile(data, fileName) {
+
+}
+
 /*---Data generation scripts---*/
 
 //generate a list of rooms and add them to the roomArray
@@ -107,7 +114,7 @@ generateRandomArray();
 
 
 //console log testing
-generateRooms(10);
+generateRooms(numRooms);
 console.log(roomArray);
 //console.log(randomArray);
 //console.log(randomNumber());
