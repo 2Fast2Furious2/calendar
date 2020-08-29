@@ -25,6 +25,9 @@ const reviewRange = [1,5];
 const reservationDateRange = 365;
 const avgOccupancy = 0.33;
 
+//used to generate a random user ID
+const numUsers = 8675309;
+
 //pregenerated random number array and counter that will be used in place of a Math.random value to improve performance
 const randomArray = [];
 let counter = 0;
@@ -150,8 +153,26 @@ function generateReviews() {
 
   for(let i = 0; i < roomArray.length; i++) {
     //determine the number of reviews for each room, and apply a random weighting to each room's score.
-    let numReviews = avgReviews
+    let addOrSubtract = (randomNumber() < 0.5) ? 1 : - 1;
+    let numReviews = avgReviews + (addOrSubtract *  Math.floor(reviewCountVariation * randomNumber()));
+    let weighting = Math.floor(3 * randomNumber());
+
+    for(j = 0; j < numReviews; j++) {
+      let roomId = roomArray[i].roomId;
+      let userId = Math.floor(numUsers * randomNumber());
+      let score = weighting + reviewScoreOptions[Math.floor(randomNumber() * reviewScoreOptions.length)];
+      let reviewScore = Math.min(Math.max(score, 1), 5);
+
+      reviewArray.push({
+        'roomId': roomId,
+        'userId': userId,
+        'reviewScore': reviewScore
+      });
+    }
   }
+
+  console.log("Review data generated");
+  console.log(reviewArray);
 }
 
 //Random file generation starts here
@@ -159,8 +180,11 @@ function generateReviews() {
 //seed random number database
 generateRandomArray();
 console.log("Generating room data...");
-generateRooms(numRooms);
+generateRooms(10);
 saveFile(roomArray, 'room_data.txt');
+console.log("Generating review data...");
+generateReviews();
+saveFile(reviewArray, 'review_data.txt');
 
 //console log testing
 //console.log(roomArray);
