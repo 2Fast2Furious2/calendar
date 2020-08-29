@@ -14,4 +14,4 @@ config.js
 coverage/
 
 #test file output
-seeding/output
+seeding/output.tmp

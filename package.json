@@ -8,7 +8,7 @@
     "server": "nodemon server/index.js",
     "seed": "node database/seed.js",
     "test": "jest --coverage --colors",
-    "generate-data": "node --max-old-space-size=8192 generate.data.js"
+    "generate-data": "node --max-old-space-size=8192 generate_data.js"
   },
   "repository": {
     "type": "git",

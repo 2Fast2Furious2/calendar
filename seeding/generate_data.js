@@ -4,6 +4,7 @@
 const fs = require('fs');
 const stream = require('stream');
 const moment = require('moment');
+const util = require('util');
 
 /*global variable declarations
 Range global variables should specifiy a minimum/maximum value in a two record array unless otherwise specified.
@@ -63,7 +64,7 @@ function randomNumber() {
 //TBD: handle logic for splitting files
 function saveFile(data, fileName) {
 
-  let filepath = ('./output/').concat(fileName);
+  let filepath = ('./output.tmp/').concat(fileName);
   console.log('Writing data to ' + filepath);
 
   const writeStream = fs.createWriteStream(filepath);
@@ -90,6 +91,9 @@ function saveFile(data, fileName) {
   });
 
   writeStream.end();
+
+  //return value as a way to indicate when function is complete
+  return 'complete';
 }
 
 /*---Data generation scripts---*/
@@ -125,9 +129,9 @@ function generateRooms(maxRooms) {
     let roomId = i;
     let maxGuests = guestCountOptions[Math.floor(randomNumber() * guestCountOptions.length)];
     let minReservation = reservationOptions[Math.floor(randomNumber() * reservationOptions.length)];
-    let nightlyFee = nightlyFeeOptions[Math.floor(randomNumber() * nightlyFeeOptions.length)]; //TBD
-    let cleaningFee = cleaningFeeOptions[Math.floor(randomNumber() * cleaningFeeOptions.length)]; //TBD
-    let serviceFee = serviceFeeRange[Math.floor(randomNumber() * serviceFeeRange.length)]; //TBD;
+    let nightlyFee = nightlyFeeOptions[Math.floor(randomNumber() * nightlyFeeOptions.length)];
+    let cleaningFee = cleaningFeeOptions[Math.floor(randomNumber() * cleaningFeeOptions.length)];
+    let serviceFee = serviceFeeRange[Math.floor(randomNumber() * serviceFeeRange.length)];
 
     roomArray.push({
       'roomId': roomId,
@@ -178,27 +182,33 @@ function generateReviews(start=0, end=roomArray.length) {
 }
 
 //Random file generation starts here
-
+async function runSeed() {
 //seed random number database
-generateRandomArray();
-console.log("Generating room data...");
-generateRooms(1000000);
-saveFile(roomArray, 'room_data.txt');
-console.log("Generating review data...");
+  const saveFilePromise = util.promisify(saveFile);
+  generateRandomArray();
+  console.log("Generating room data...");
+  generateRooms(10000);
+  await saveFilePromise(roomArray, 'room_data.txt');
+  console.log("Generating review data...");
 
-//split review generation into chunks to try and get around memory pressure issues
-let numReviewFiles = Math.ceil((roomArray.length * avgReviews) / maxReviewsPerFile);
-let reviewChunk = roomArray.length / numReviewFiles;
-console.log(numReviewFiles);
-console.log(reviewChunk);
+  //split review generation into chunks to try and get around memory pressure issues
+  let numReviewFiles = Math.ceil((roomArray.length * avgReviews) / maxReviewsPerFile);
+  let reviewChunk = roomArray.length / numReviewFiles;
+  console.log(numReviewFiles);
+  console.log(reviewChunk);
 
-for(let i = 1; i <= numReviewFiles; i++) {
-  let start = reviewChunk * (i -1);
-  let end = reviewChunk * i;
-  let reviewArray = generateReviews(start,end);
-  saveFile(reviewArray, `review_data_${i}.txt`);
+  for(let i = 1; i <= numReviewFiles; i++) {
+    let start = reviewChunk * (i -1);
+    let end = reviewChunk * i;
+    let reviewArray = generateReviews(start,end);
+    await saveFilePromise(reviewArray, `review_data_${i}.txt`);
+  }
+
+  console.log("Seeding complete!");
 }
 
+
+runSeed();
 //generateReviews();
 //saveFile(reviewArray, 'review_data.txt');
 
