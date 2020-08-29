@@ -32,6 +32,7 @@ const counterMax = 1000;
 
 //array containers for test data: should be written to a file after processing is complete
 const roomArray = [];
+const reviewArray = [];
 
 
 //function declarations
@@ -132,6 +133,24 @@ function generateRooms(maxRooms) {
       'cleaningFee': cleaningFee,
       'serviceFee': serviceFee
     });
+  }
+}
+
+//generates a list of reviews for the rooms in roomArray.
+//Should be run only after generateRooms() is complete and room data is written to file.
+function generateReviews() {
+
+  //generate list of possible scores and max variation in number of reviews.
+  let reviewCountVariation = Math.floor(avgReviews / 2);
+  let reviewScoreOptions = [];
+
+  for(let i = reviewRange[0]; i <= reviewRange[1]; i++) {
+    reviewScoreOptions.push(i);
+  }
+
+  for(let i = 0; i < roomArray.length; i++) {
+    //determine the number of reviews for each room, and apply a random weighting to each room's score.
+    let numReviews = avgReviews
   }
 }
 
