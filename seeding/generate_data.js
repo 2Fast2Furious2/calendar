@@ -173,7 +173,7 @@ function generateReviews(start=0, end=roomArray.length) {
     }
   }
 
-  console.log("Review data generated");
+  console.log("Review data generated with record count: " + reviewArray.length);
   return reviewArray;
 }
 
@@ -194,7 +194,7 @@ console.log(reviewChunk);
 
 for(let i = 1; i <= numReviewFiles; i++) {
   let start = reviewChunk * (i -1);
-  let end = reviewChunk;
+  let end = reviewChunk * i;
   let reviewArray = generateReviews(start,end);
   saveFile(reviewArray, `review_data_${i}.txt`);
 }
