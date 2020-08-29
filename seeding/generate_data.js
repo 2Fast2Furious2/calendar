@@ -40,7 +40,7 @@ const roomArray = [];
 //declarations for file limiters
 const maxReviewsPerFile = 10000000;
 
-//function declarations
+/*----function declarations----*/
 
 /*---RANDOM NUMBER SCRIPTS: USE THESE IN PLACE OF MATH.RANDOM()---*/
 
@@ -62,8 +62,7 @@ function randomNumber() {
 
 //data should be in an array format.  File will be saved to the ./output directory
 //TBD: handle logic for splitting files
-function saveFile(data, fileName) {
-
+function saveFile(data, fileName, callback) {
   let filepath = ('./output.tmp/').concat(fileName);
   console.log('Writing data to ' + filepath);
 
@@ -84,6 +83,7 @@ function saveFile(data, fileName) {
 
   writeStream.on('finish', () => {
     console.log(`Data written to ${filepath}`);
+    callback();
   });
 
   writeStream.on('error', (err) => {
@@ -91,9 +91,7 @@ function saveFile(data, fileName) {
   });
 
   writeStream.end();
-
-  //return value as a way to indicate when function is complete
-  return 'complete';
+  writeStream.close();
 }
 
 /*---Data generation scripts---*/
@@ -142,6 +140,7 @@ function generateRooms(maxRooms) {
       'serviceFee': serviceFee
     });
   }
+  console.log(`${roomArray.length} room records created.`);
 }
 
 //generates a list of reviews for the rooms in roomArray.
@@ -182,13 +181,19 @@ function generateReviews(start=0, end=roomArray.length) {
 }
 
 //Random file generation starts here
-async function runSeed() {
+
+//Save the room data, then runs the next step via the callback argument in saveFile
+function saveRooms(callback) {
 //seed random number database
-  const saveFilePromise = util.promisify(saveFile);
+  //const saveFilePromise = util.promisify(saveFile);
   generateRandomArray();
   console.log("Generating room data...");
-  generateRooms(10000);
-  await saveFilePromise(roomArray, 'room_data.txt');
+  generateRooms(1000000);
+  saveFile(roomArray, 'room_data.txt', callback);
+}
+
+//generate review data.  Split into multiple files as needed.
+function saveReviews(){
   console.log("Generating review data...");
 
   //split review generation into chunks to try and get around memory pressure issues
@@ -197,18 +202,36 @@ async function runSeed() {
   console.log(numReviewFiles);
   console.log(reviewChunk);
 
-  for(let i = 1; i <= numReviewFiles; i++) {
-    let start = reviewChunk * (i -1);
+  //TBD: create a chain of functions that generate review records and then
+  const reviewCallback = function(i) {
+    console.log("Starting review file " + i);
+    let start = reviewChunk * (i-1);
     let end = reviewChunk * i;
     let reviewArray = generateReviews(start,end);
-    await saveFilePromise(reviewArray, `review_data_${i}.txt`);
+    if(i < numReviewFiles) {
+      saveFile(reviewArray, `review_data_${i}.txt`, ()=>{reviewCallback(i+1)});
+    } else {
+      saveFile(reviewArray, `review_data_${i}.txt`, saveReservations);
+    }
   }
 
-  console.log("Seeding complete!");
+  reviewCallback(1);
+
+  // for(let i = 1; i <= numReviewFiles; i++) {
+  //   console.log("Starting review file " + i);
+  //   let start = reviewChunk * (i -1);
+  //   let end = reviewChunk * i;
+  //   let reviewArray = generateReviews(start,end);
+  //   //saveFile(reviewArray, `review_data_${i}.txt`);
+  // }
 }
 
+//TBD: generate and save reservation information
+function saveReservations() {
+  console.log('TBD');
+}
 
-runSeed();
+saveRooms(saveReviews);
 //generateReviews();
 //saveFile(reviewArray, 'review_data.txt');
 
