@@ -35,8 +35,9 @@ const counterMax = 1000;
 
 //array containers for test data: should be written to a file after processing is complete
 const roomArray = [];
-const reviewArray = [];
 
+//declarations for file limiters
+const maxReviewsPerFile = 10000000;
 
 //function declarations
 
@@ -141,9 +142,10 @@ function generateRooms(maxRooms) {
 
 //generates a list of reviews for the rooms in roomArray.
 //Should be run only after generateRooms() is complete and room data is written to file.
-function generateReviews() {
+function generateReviews(start=0, end=roomArray.length) {
 
   //generate list of possible scores and max variation in number of reviews.
+  let reviewArray = [];
   let reviewCountVariation = Math.floor(avgReviews / 2);
   let reviewScoreOptions = [];
 
@@ -151,7 +153,7 @@ function generateReviews() {
     reviewScoreOptions.push(i);
   }
 
-  for(let i = 0; i < roomArray.length; i++) {
+  for(let i = start; i < end; i++) {
     //determine the number of reviews for each room, and apply a random weighting to each room's score.
     let addOrSubtract = (randomNumber() < 0.5) ? 1 : - 1;
     let numReviews = avgReviews + (addOrSubtract *  Math.floor(reviewCountVariation * randomNumber()));
@@ -172,7 +174,7 @@ function generateReviews() {
   }
 
   console.log("Review data generated");
-  console.log(reviewArray);
+  return reviewArray;
 }
 
 //Random file generation starts here
@@ -180,11 +182,25 @@ function generateReviews() {
 //seed random number database
 generateRandomArray();
 console.log("Generating room data...");
-generateRooms(10);
+generateRooms(1000000);
 saveFile(roomArray, 'room_data.txt');
 console.log("Generating review data...");
-generateReviews();
-saveFile(reviewArray, 'review_data.txt');
+
+//split review generation into chunks to try and get around memory pressure issues
+let numReviewFiles = Math.ceil((roomArray.length * avgReviews) / maxReviewsPerFile);
+let reviewChunk = roomArray.length / numReviewFiles;
+console.log(numReviewFiles);
+console.log(reviewChunk);
+
+for(let i = 1; i <= numReviewFiles; i++) {
+  let start = reviewChunk * (i -1);
+  let end = reviewChunk;
+  let reviewArray = generateReviews(start,end);
+  saveFile(reviewArray, `review_data_${i}.txt`);
+}
+
+//generateReviews();
+//saveFile(reviewArray, 'review_data.txt');
 
 //console log testing
 //console.log(roomArray);
