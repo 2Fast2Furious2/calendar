@@ -1,10 +1,13 @@
 //seeding script for database testing of a calendar app
 //should generate a set of files that can be used in multiple dbs to generate data
 
+'use strict';
+
 const fs = require('fs');
 const stream = require('stream');
 const moment = require('moment');
 const util = require('util');
+const heapdump = require('heapdump');
 
 /*global variable declarations
 Range global variables should specifiy a minimum/maximum value in a two record array unless otherwise specified.
@@ -42,6 +45,14 @@ const maxReviewsPerFile = 10000000;
 
 /*----function declarations----*/
 
+//test function to check memory use
+function checkMemory() {
+  const used = process.memoryUsage();
+  for (let key in used) {
+    console.log(`${key} ${Math.round(used[key] / 1024 / 1024 * 100) / 100} MB`);
+  }
+}
+
 /*---RANDOM NUMBER SCRIPTS: USE THESE IN PLACE OF MATH.RANDOM()---*/
 
 //generate a preset array of random numbers
@@ -70,7 +81,11 @@ function saveFile(data, fileName, callback) {
 
   const writeToFile = function(record) {
     if(!writeStream.write(`${JSON.stringify(record)}\n`)) {
-      writeStream.once('drain',() => {writeToFile(record)});
+      const onDrain = function() {
+        writeStream.removeListener('drain', onDrain);
+        writeToFile(record);
+      }
+      writeStream.once('drain', onDrain);
     }
   }
 
@@ -81,8 +96,14 @@ function saveFile(data, fileName, callback) {
 
   });
 
+  //TBD: remove logging data when troubleshooting is complete
   writeStream.on('finish', () => {
-    console.log(`Data written to ${filepath}`);
+    console.log(`Data written to ${filepath}, finished at ${Date.now()}`);
+    writeStream.removeAllListeners();
+    console.log("Current drain listeners: " + writeStream.listenerCount('drain'));
+    console.log("Current error listeners: " + writeStream.listenerCount('error'));
+    console.log("Current finish listeners: " + writeStream.listenerCount('finish'));
+    checkMemory();
     callback();
   });
 
@@ -162,8 +183,8 @@ function generateReviews(start=0, end=roomArray.length) {
     let numReviews = avgReviews + (addOrSubtract *  Math.floor(reviewCountVariation * randomNumber()));
     let weighting = Math.floor(3 * randomNumber());
 
-    for(j = 0; j < numReviews; j++) {
-      let roomId = roomArray[i].roomId;
+    for(let j = 0; j < numReviews; j++) {
+      let roomId = i;
       let userId = Math.floor(numUsers * randomNumber());
       let score = weighting + reviewScoreOptions[Math.floor(randomNumber() * reviewScoreOptions.length)];
       let reviewScore = Math.min(Math.max(score, 1), 5);
@@ -188,7 +209,7 @@ function saveRooms(callback) {
   //const saveFilePromise = util.promisify(saveFile);
   generateRandomArray();
   console.log("Generating room data...");
-  generateRooms(1000000);
+  generateRooms(1000);
   saveFile(roomArray, 'room_data.txt', callback);
 }
 
@@ -209,9 +230,15 @@ function saveReviews(){
     let end = reviewChunk * i;
     let reviewArray = generateReviews(start,end);
     if(i < numReviewFiles) {
-      saveFile(reviewArray, `review_data_${i}.txt`, ()=>{reviewCallback(i+1)});
+      //saveFile(reviewArray, `review_data_${i}.txt`, ()=>{reviewCallback(i+1)});
+      //test
+      checkMemory();
+      reviewCallback(i+1);
     } else {
-      saveFile(reviewArray, `review_data_${i}.txt`, saveReservations);
+      //saveFile(reviewArray, `review_data_${i}.txt`, saveReservations);
+      //test
+      checkMemory();
+      saveReservations();
     }
   }
 
@@ -228,6 +255,8 @@ function saveReviews(){
 
 //TBD: generate and save reservation information
 function saveReservations() {
+  //test: writing heapdump: remove when no longer needed
+  heapdump.writeSnapshot('./output.tmp/' + Date.now() + '.heapsnapshot');
   console.log('TBD');
 }
 
