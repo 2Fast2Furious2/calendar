@@ -13,7 +13,7 @@ const heapdump = require('heapdump');
 Range global variables should specifiy a minimum/maximum value in a two record array unless otherwise specified.
 */
 //rooms
-const numRooms = 1000000;
+const numRooms = 10000000;
 const reservationRange = [1,3];
 const maxGuestsRange = [1,8];
 const nightlyFeeRange = [10,200];
@@ -74,7 +74,7 @@ function randomNumber() {
 /*---Save file script---*/
 
 //data should be in an array format.  File will be saved to the ./output directory
-//TBD: handle logic for splitting files
+//TBD: convert to csv file
 function saveFile(data, fileName, callback) {
   let filepath = ('./output.tmp/').concat(fileName);
   console.log('Writing data to ' + filepath);
@@ -91,11 +91,25 @@ function saveFile(data, fileName, callback) {
     }
   }
 
+  //CSV implementation: get headers from first record in the file, convert to a CSV string and push to file
+  let headers = Object.keys(data[0]);
+  let headerString = '';
+  for(let i = 0; i < headers.length; i++) {
+    headerString = headerString.concat(headers[i] +',');
+  }
+  headerString = headerString.replace(headerString.slice(-1),"\n");
+
+  writeStream.write(headerString);
+
   data.forEach(record => {
-
+    let recordString = '';
+    for(let i = 0; i < headers.length; i++) {
+      recordString = recordString.concat(record[headers[i]] + ',');
+    }
+    recordString = recordString.replace(recordString.slice(-1),"\n");
     //writeStream.write(`${JSON.stringify(record)}\n`);
-    writeToFile(record);
-
+    //writeToFile(record);
+    writeToFile(recordString);
   });
 
   //TBD: remove logging data when troubleshooting is complete
@@ -219,7 +233,7 @@ function generateReservations(start=0, end=numRooms) {
     boundedEnd = numRooms;
   }
 
-  console.log(daysPerRoom);
+  //console.log(daysPerRoom);
   for(let i = start; i < boundedEnd; i++) {
     let remainingDays = daysPerRoom;
     let currentDate = startDate;
@@ -261,7 +275,7 @@ function generateReservations(start=0, end=numRooms) {
 function saveRooms(callback) {
   console.log("Generating room data...");
   generateRooms(numRooms);
-  saveFile(roomArray, 'room_data.txt', callback);
+  saveFile(roomArray, 'room_data.csv', callback);
 }
 
 //generate review data.  Split into multiple files as needed.
@@ -281,9 +295,9 @@ function saveReviews(){
     let end = reviewChunk * i;
     let reviewArray = generateReviews(start,end);
     if(i < numReviewFiles) {
-      saveFile(reviewArray, `review_data_${i}.txt`, ()=>{reviewCallback(i+1)});
+      saveFile(reviewArray, `review_data_${i}.csv`, ()=>{reviewCallback(i+1)});
     } else {
-      saveFile(reviewArray, `review_data_${i}.txt`, saveReservations);
+      saveFile(reviewArray, `review_data_${i}.csv`, saveReservations);
     }
   }
 
@@ -304,9 +318,9 @@ function saveReservations() {
     let end = reservationChunk * i;
     let reservationArray = generateReservations(start,end);
     if(i < numReservationFiles) {
-      saveFile(reservationArray, `reservation_data_${i}.txt`, ()=>{reservationCallback(i+1)});
+      saveFile(reservationArray, `reservation_data_${i}.csv`, ()=>{reservationCallback(i+1)});
     } else {
-      saveFile(reservationArray, `reservation_data_${i}.txt`, cleanup);
+      saveFile(reservationArray, `reservation_data_${i}.csv`, cleanup);
     }
   }
 
