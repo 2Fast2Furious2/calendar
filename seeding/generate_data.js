@@ -13,7 +13,7 @@ const heapdump = require('heapdump');
 Range global variables should specifiy a minimum/maximum value in a two record array unless otherwise specified.
 */
 //rooms
-const numRooms = 10000000;
+const numRooms = 10;
 const reservationRange = [1,3];
 const maxGuestsRange = [1,8];
 const nightlyFeeRange = [10,200];
@@ -82,7 +82,7 @@ function saveFile(data, fileName, callback) {
   const writeStream = fs.createWriteStream(filepath);
 
   const writeToFile = function(record) {
-    if(!writeStream.write(`${JSON.stringify(record)}\n`)) {
+    if(!writeStream.write(record)) {
       const onDrain = function() {
         writeStream.removeListener('drain', onDrain);
         writeToFile(record);
@@ -97,16 +97,17 @@ function saveFile(data, fileName, callback) {
   for(let i = 0; i < headers.length; i++) {
     headerString = headerString.concat(headers[i] +',');
   }
-  headerString = headerString.replace(headerString.slice(-1),"\n");
+  headerString = headerString.substring(0, headerString.length-1);
 
   writeStream.write(headerString);
+  writeStream.write('\n');
 
   data.forEach(record => {
     let recordString = '';
     for(let i = 0; i < headers.length; i++) {
-      recordString = recordString.concat(record[headers[i]] + ',');
+      recordString = recordString.concat(record[headers[i]]+',');
     }
-    recordString = recordString.replace(recordString.slice(-1),"\n");
+    recordString = recordString.substring(0, recordString.length-1)+`\n`;
     //writeStream.write(`${JSON.stringify(record)}\n`);
     //writeToFile(record);
     writeToFile(recordString);
