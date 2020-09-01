@@ -13,7 +13,7 @@ const heapdump = require('heapdump');
 Range global variables should specifiy a minimum/maximum value in a two record array unless otherwise specified.
 */
 //rooms
-const numRooms = 10000;
+const numRooms = 1000000;
 const reservationRange = [1,3];
 const maxGuestsRange = [1,8];
 const nightlyFeeRange = [10,200];
@@ -314,10 +314,17 @@ function saveReservations() {
 }
 
 function cleanup() {
+  let scriptEndDate = new Date();
+  let scriptEndTime = scriptEndDate.getHours() + ":" + scriptEndDate.getMinutes() + ":" + scriptEndDate.getSeconds();
   console.log("All files generated: please check output folder and verify data.");
+  console.log(`Seeding script ended at ${scriptEndTime}`);
+  console.log("***********************************************************************");
 }
 
 /*----Start processing here----*/
 generateRandomArray();
-//Unomment after completing reservation info
+let scriptStartDate = new Date();
+let scriptStartTime = scriptStartDate.getHours() + ":" + scriptStartDate.getMinutes() + ":" + scriptStartDate.getSeconds();
+console.log("***********************************************************************");
+console.log(`Seeding script started at ${scriptStartTime}`);
 saveRooms(saveReviews);
