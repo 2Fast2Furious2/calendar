@@ -13,7 +13,7 @@ const heapdump = require('heapdump');
 Range global variables should specifiy a minimum/maximum value in a two record array unless otherwise specified.
 */
 //rooms
-const numRooms = 10000000;
+const numRooms = 1000000;
 const reservationRange = [1,3];
 const maxGuestsRange = [1,8];
 const nightlyFeeRange = [10,200];
@@ -41,7 +41,8 @@ const counterMax = 1000;
 const roomArray = [];
 
 //declarations for file limiters
-const maxReviewsPerFile = 10000000;
+const maxReviewsPerFile = 2000000;
+const maxReservationsPerFile = 2000000;
 
 /*----function declarations----*/
 
@@ -98,7 +99,10 @@ function saveFile(data, fileName, callback) {
 
   //TBD: remove logging data when troubleshooting is complete
   writeStream.on('finish', () => {
-    console.log(`Data written to ${filepath}, finished at ${Date.now()}`);
+    let today = new Date();
+    let time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+    console.log(`Data written to ${filepath}, finished at ${time}`);
+    console.log("Current drain listeners before removeAllListeners: " + writeStream.listenerCount('drain'));
     writeStream.removeAllListeners();
     console.log("Current drain listeners: " + writeStream.listenerCount('drain'));
     console.log("Current error listeners: " + writeStream.listenerCount('error'));
@@ -166,7 +170,7 @@ function generateRooms(maxRooms) {
 
 //generates a list of reviews for the rooms in roomArray.
 //Should be run only after generateRooms() is complete and room data is written to file.
-function generateReviews(start=0, end=roomArray.length) {
+function generateReviews(start=0, end=numRooms) {
 
   //generate list of possible scores and max variation in number of reviews.
   let reviewArray = [];
@@ -201,7 +205,15 @@ function generateReviews(start=0, end=roomArray.length) {
   return reviewArray;
 }
 
-//Random file generation starts here
+//generate and return an array of reservations, beginning from the date the function is run
+function generateReservations(start=0, end=numRooms) {
+  let daysPerRoom = Math.floor(reservationDateRange * avgOccupancy);
+  let currentDate = new Date(moment());
+
+  console.log(currentDate);
+}
+
+//file generation starts here
 
 //Save the room data, then runs the next step via the callback argument in saveFile
 function saveRooms(callback) {
@@ -209,7 +221,7 @@ function saveRooms(callback) {
   //const saveFilePromise = util.promisify(saveFile);
   generateRandomArray();
   console.log("Generating room data...");
-  generateRooms(1000);
+  generateRooms(numRooms);
   saveFile(roomArray, 'room_data.txt', callback);
 }
 
@@ -218,8 +230,8 @@ function saveReviews(){
   console.log("Generating review data...");
 
   //split review generation into chunks to try and get around memory pressure issues
-  let numReviewFiles = Math.ceil((roomArray.length * avgReviews) / maxReviewsPerFile);
-  let reviewChunk = roomArray.length / numReviewFiles;
+  let numReviewFiles = Math.ceil((numRooms * avgReviews) / maxReviewsPerFile);
+  let reviewChunk = numRooms / numReviewFiles;
   console.log(numReviewFiles);
   console.log(reviewChunk);
 
@@ -230,15 +242,17 @@ function saveReviews(){
     let end = reviewChunk * i;
     let reviewArray = generateReviews(start,end);
     if(i < numReviewFiles) {
-      //saveFile(reviewArray, `review_data_${i}.txt`, ()=>{reviewCallback(i+1)});
+      //uncomment below after test
+      saveFile(reviewArray, `review_data_${i}.txt`, ()=>{reviewCallback(i+1)});
       //test
-      checkMemory();
-      reviewCallback(i+1);
+      //checkMemory();
+      //reviewCallback(i+1);
     } else {
-      //saveFile(reviewArray, `review_data_${i}.txt`, saveReservations);
+      //uncomment below after test
+      saveFile(reviewArray, `review_data_${i}.txt`, saveReservations);
       //test
-      checkMemory();
-      saveReservations();
+      //checkMemory();
+      //saveReservations();
     }
   }
 
@@ -256,11 +270,14 @@ function saveReviews(){
 //TBD: generate and save reservation information
 function saveReservations() {
   //test: writing heapdump: remove when no longer needed
-  heapdump.writeSnapshot('./output.tmp/' + Date.now() + '.heapsnapshot');
+  //heapdump.writeSnapshot('./output.tmp/' + Date.now() + '.heapsnapshot');
   console.log('TBD');
 }
 
-saveRooms(saveReviews);
+//Unomment after completing reservation info
+//saveRooms(saveReviews);
+
+generateReservations();
 //generateReviews();
 //saveFile(reviewArray, 'review_data.txt');
 
