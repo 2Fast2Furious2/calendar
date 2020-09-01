@@ -28,6 +28,7 @@ const reviewRange = [1,5];
 //reservation variables: assume a year out with 1/3 occupancy
 const reservationDateRange = 365;
 const avgOccupancy = 0.33;
+const maxReservationLength = 7;
 
 //used to generate a random user ID
 const numUsers = 8675309;
@@ -207,19 +208,52 @@ function generateReviews(start=0, end=numRooms) {
 
 //generate and return an array of reservations, beginning from the date the function is run
 function generateReservations(start=0, end=numRooms) {
+  let reservationArray = [];
   let daysPerRoom = Math.floor(reservationDateRange * avgOccupancy);
-  let currentDate = new Date(moment());
+  let startDate = new Date(moment());
+  let endDate = new Date(moment().add(reservationDateRange,'days'));
 
-  console.log(currentDate);
+  console.log(daysPerRoom);
+  for(let i = start; i < end; i++) {
+    let remainingDays = daysPerRoom;
+    let currentDate = startDate;
+
+    while(remainingDays > 0) {
+      let daysToSkip = Math.floor(randomNumber() * 3);
+      let reservationLength = Math.floor(randomNumber() * maxReservationLength) + 1;
+      remainingDays = remainingDays - reservationLength;
+
+      currentDate = moment(currentDate).add(daysToSkip,'days');
+      let reservationStartDate = currentDate;
+      let reservationEndDate = moment(currentDate).add(reservationLength,'days');
+      currentDate = reservationEndDate;
+      console.log(`Reservation from ${reservationStartDate} to ${reservationEndDate}`);
+      let roomId = i;
+      let userId = Math.floor(numUsers * randomNumber());
+      let numAdults = Math.floor(randomNumber() * 2) + 1;
+      let numChildren = Math.floor(randomNumber() * 3);
+      let numInfants = Math.floor(randomNumber() * 2);
+
+      reservationArray.push({
+        "roomId": roomId,
+        "userId": userId,
+        "startDate": reservationStartDate.format(),
+        "endDate": reservationEndDate.format(),
+        "numAdults": numAdults,
+        "numChildren": numChildren,
+        "numInfants": numInfants
+      });
+    }
+    console.log("TBD");
+  }
+
+  return reservationArray;
 }
 
 //file generation starts here
 
 //Save the room data, then runs the next step via the callback argument in saveFile
 function saveRooms(callback) {
-//seed random number database
-  //const saveFilePromise = util.promisify(saveFile);
-  generateRandomArray();
   console.log("Generating room data...");
   generateRooms(numRooms);
   saveFile(roomArray, 'room_data.txt', callback);
@@ -257,32 +291,18 @@ function saveReviews(){
   }
 
   reviewCallback(1);
-
-  // for(let i = 1; i <= numReviewFiles; i++) {
-  //   console.log("Starting review file " + i);
-  //   let start = reviewChunk * (i -1);
-  //   let end = reviewChunk * i;
-  //   let reviewArray = generateReviews(start,end);
-  //   //saveFile(reviewArray, `review_data_${i}.txt`);
-  // }
 }
 
 //TBD: generate and save reservation information
 function saveReservations() {
-  //test: writing heapdump: remove when no longer needed
-  //heapdump.writeSnapshot('./output.tmp/' + Date.now() + '.heapsnapshot');
-  console.log('TBD');
+  console.log("Generating reservation data...");
+
+
 }
 
+/*----Start processing here----*/
+generateRandomArray();
 //Unomment after completing reservation info
 //saveRooms(saveReviews);
 
-generateReservations();
-//generateReviews();
-//saveFile(reviewArray, 'review_data.txt');
-
-//console log testing
-//console.log(roomArray);
-//console.log(randomArray);
-//console.log(randomNumber());
-//console.log(randomNumber());
+console.log(generateReservations(0,1));
