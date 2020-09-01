@@ -13,7 +13,7 @@ const heapdump = require('heapdump');
 Range global variables should specifiy a minimum/maximum value in a two record array unless otherwise specified.
 */
 //rooms
-const numRooms = 1000000;
+const numRooms = 10000;
 const reservationRange = [1,3];
 const maxGuestsRange = [1,8];
 const nightlyFeeRange = [10,200];
@@ -213,8 +213,14 @@ function generateReservations(start=0, end=numRooms) {
   let startDate = new Date(moment());
   let endDate = new Date(moment().add(reservationDateRange,'days'));
 
+  //handle situation where end passed ot file is greater than max number of rooms
+  let boundedEnd = end;
+  if(end > numRooms) {
+    boundedEnd = numRooms;
+  }
+
   console.log(daysPerRoom);
-  for(let i = start; i < end; i++) {
+  for(let i = start; i < boundedEnd; i++) {
     let remainingDays = daysPerRoom;
     let currentDate = startDate;
 
@@ -227,7 +233,7 @@ function generateReservations(start=0, end=numRooms) {
       let reservationStartDate = currentDate;
       let reservationEndDate = moment(currentDate).add(reservationLength,'days');
       currentDate = reservationEndDate;
-      console.log(`Reservation from ${reservationStartDate} to ${reservationEndDate}`);
+      //console.log(`Reservation from ${reservationStartDate} to ${reservationEndDate}`);
       let roomId = i;
       let userId = Math.floor(numUsers * randomNumber());
       let numAdults = Math.floor(randomNumber() * 2) + 1;
@@ -244,9 +250,8 @@ function generateReservations(start=0, end=numRooms) {
         "numInfants": numInfants
       });
     }
-    console.log("TBD");
   }
-
+  console.log("Reservation data generated with record count: " + reservationArray.length);
   return reservationArray;
 }
 
@@ -276,17 +281,9 @@ function saveReviews(){
     let end = reviewChunk * i;
     let reviewArray = generateReviews(start,end);
     if(i < numReviewFiles) {
-      //uncomment below after test
       saveFile(reviewArray, `review_data_${i}.txt`, ()=>{reviewCallback(i+1)});
-      //test
-      //checkMemory();
-      //reviewCallback(i+1);
     } else {
-      //uncomment below after test
       saveFile(reviewArray, `review_data_${i}.txt`, saveReservations);
-      //test
-      //checkMemory();
-      //saveReservations();
     }
   }
 
@@ -296,13 +293,31 @@ function saveReviews(){
 //TBD: generate and save reservation information
 function saveReservations() {
   console.log("Generating reservation data...");
+  //Assume average reservation length is Math.ceil(maxReservationLength / 2)
+  let numReservationFiles = Math.ceil((numRooms * (Math.floor(reservationDateRange * avgOccupancy / Math.ceil(maxReservationLength / 2)))) /maxReservationsPerFile);
+  let reservationChunk = Math.ceil(numRooms / numReservationFiles);
+  console.log(`For ${numRooms} rooms there will be ${numReservationFiles} files of ${reservationChunk} reservations each.`);
 
+  const reservationCallback = function(i) {
+    console.log("Starting reservation file " + i);
+    let start = reservationChunk * (i-1);
+    let end = reservationChunk * i;
+    let reservationArray = generateReservations(start,end);
+    if(i < numReservationFiles) {
+      saveFile(reservationArray, `reservation_data_${i}.txt`, ()=>{reservationCallback(i+1)});
+    } else {
+      saveFile(reservationArray, `reservation_data_${i}.txt`, cleanup);
+    }
+  }
 
+  reservationCallback(1);
+}
+
+function cleanup() {
+  console.log("All files generated: please check output folder and verify data.");
 }
 
 /*----Start processing here----*/
 generateRandomArray();
 //Unomment after completing reservation info
-//saveRooms(saveReviews);
-
-console.log(generateReservations(0,1));
+saveRooms(saveReviews);
