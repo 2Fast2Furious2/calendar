@@ -13,7 +13,7 @@ const heapdump = require('heapdump');
 Range global variables should specifiy a minimum/maximum value in a two record array unless otherwise specified.
 */
 //rooms
-const numRooms = 10;
+const numRooms = 10000000;
 const reservationRange = [1,3];
 const maxGuestsRange = [1,8];
 const nightlyFeeRange = [10,200];
@@ -42,8 +42,8 @@ const counterMax = 1000;
 const roomArray = [];
 
 //declarations for file limiters
-const maxReviewsPerFile = 2000000;
-const maxReservationsPerFile = 2000000;
+const maxReviewsPerFile = 5000000;
+const maxReservationsPerFile = 5000000;
 
 /*----function declarations----*/
 
@@ -80,12 +80,13 @@ function saveFile(data, fileName, callback) {
   console.log('Writing data to ' + filepath);
 
   const writeStream = fs.createWriteStream(filepath);
+  //writeStream.setDefaultEncoding('ascii');
 
   const writeToFile = function(record) {
-    if(!writeStream.write(record)) {
+    if(!writeStream.write(record,'ascii')) {
       const onDrain = function() {
         writeStream.removeListener('drain', onDrain);
-        writeToFile(record);
+        writeToFile(record,'ascii');
       }
       writeStream.once('drain', onDrain);
     }
@@ -99,8 +100,8 @@ function saveFile(data, fileName, callback) {
   }
   headerString = headerString.substring(0, headerString.length-1);
 
-  writeStream.write(headerString);
-  writeStream.write('\n');
+  writeStream.write(headerString,'ascii');
+  writeStream.write('\n','ascii');
 
   data.forEach(record => {
     let recordString = '';

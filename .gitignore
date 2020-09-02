@@ -15,3 +15,5 @@ coverage/
 
 #test file output
 seeding/output.tmp
+
+schemas/relational/postgres_commands.txt
