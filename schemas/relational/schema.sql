@@ -33,7 +33,6 @@ create table reservations (
 );
 
 create table reservation_info (
-  reservation_id integer PRIMARY KEY,
   room_id integer NOT NULL,
   user_id integer NOT NULL,
   start_date date NOT NULL,
