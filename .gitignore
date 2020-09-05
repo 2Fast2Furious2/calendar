@@ -16,4 +16,5 @@ coverage/
 #test file output
 seeding/output.tmp
 
-schemas/relational/postgres_commands.txt
+#credential information
+database/postgres_login.js
