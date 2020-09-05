@@ -1,17 +1,3 @@
-const mysql = require('mysql');
-const mysqlConfig = require('./config.js');
+//database index.js file using Postgres interface
 
-// For local host
-// module.exports.connection = mysql.createConnection({
-//   host     : 'localhost',
-//   user     : mysqlConfig.mysqlUser,
-//   password : mysqlConfig.mysqlPW,
-//   database : 'calendar'
-// });
-
-// For docker network
-module.exports.connection = mysql.createConnection({
-  host     : 'localhost',
-  user     : 'root',
-  database : 'calendar',
-});
+const { Client } = require('pg');
