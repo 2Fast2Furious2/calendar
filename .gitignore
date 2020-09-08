@@ -14,4 +14,9 @@ config.js
 coverage/
 
 #test file output
-seeding/output
+seeding/output.tmp
+
+#credential information
+database/postgres_login.js
+server/newrelic.js
+newrelic_agent.log
