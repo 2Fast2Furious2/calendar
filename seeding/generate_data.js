@@ -43,7 +43,7 @@ const roomArray = [];
 
 //declarations for file limiters
 const maxReviewsPerFile = 5000000;
-const maxReservationsPerFile = 5000000;
+const maxReservationsPerFile = 100000;
 
 /*----function declarations----*/
 
