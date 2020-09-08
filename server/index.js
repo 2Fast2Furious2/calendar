@@ -21,7 +21,9 @@ app.use('/rooms/:room_id', expressStaticGzip(publicPath, {
 
 //route to test PostgresSQL connection
 app.get('/test', (req,res) => {
-  res.send("TBD: route to Postgres not yet added.");
+  db.test(function(error,results) {
+    res.send(results);
+  });
 });
 
 // Route
