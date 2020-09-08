@@ -1,4 +1,5 @@
-// Dependency
+// Dependencies
+require('newrelic');
 const express = require('express');
 const bodyParser = require('body-parser');
 const moment = require('moment');
@@ -29,6 +30,7 @@ app.get('/test', (req,res) => {
 
 app.get('/rooms/:room_id/reservation', (req, res) => {
   let roomId = [req.params.room_id];
+  //console.log("Getting data for room " + roomId);
   db.getReservationsByRoom(roomId, (err, results) => {
     if(err) {
       console.log("Failed to get data from databases: ", err);
@@ -43,6 +45,7 @@ app.post('/rooms/:room_id/reservation', (req, res) => {
   let roomId = [req.params.room_id];
   let startDate = moment(req.body.check_in);
   let endDate = moment(req.body.check_out);
+  //console.log(`Saving reservation ${startDate} to ${endDate} for room ${roomId}`);
 
   db.createNewReservation(roomId,startDate.format('YYYY-MM-DD'), endDate.format('YYYY-MM-DD'), (err, results) => {
     if(err) {

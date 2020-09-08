@@ -18,3 +18,5 @@ seeding/output.tmp
 
 #credential information
 database/postgres_login.js
+server/newrelic.js
+newrelic_agent.log
