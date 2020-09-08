@@ -92,7 +92,21 @@ class App extends React.Component {
   getRoomData(roomID) {
     $.get(`/rooms/${roomID}/reservation`, (data) => {
       console.log("GET request succeed");
-      console.log(data);
+      //console.log(data);
+
+      let bookedDates = [];
+
+      for(let i = 0; i < data.length; i++) {
+        let check_in = moment(data[i].start_date);
+        let check_out = moment(data[i].end_date);
+
+        for(let j = check_in; j <= check_out; check_in.add(1,'days')) {
+          bookedDates.push(check_in.format('YYYY-MM-DD'));
+        }
+      }
+
+      //console.log(bookedDates);
+
       this.setState({
         roomId: roomID,
         allData : data,
@@ -109,8 +123,7 @@ class App extends React.Component {
          * Since the time zones are different, in order to prevent the dated rounded to the last date,
          * we need to take out the time zone by using slice
          */
-        //TBD: convert booked date from Postgres to individual dates
-        //booked_date : data.map(reservation => reservation.booked_date.slice(0, 10))
+        booked_date : bookedDates
       });
       console.log(this.state);
     });
