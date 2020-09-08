@@ -26,7 +26,7 @@ const avgReviews = 50;
 const reviewRange = [1,5];
 
 //reservation variables: assume a year out with 1/3 occupancy
-const reservationDateRange = 365;
+const reservationDateRange = 90;
 const avgOccupancy = 0.33;
 const maxReservationLength = 7;
 
@@ -163,6 +163,10 @@ function generateRooms(maxRooms) {
     cleaningFeeOptions.push(i);
   }
 
+  //RB: move review handling to main room data
+  let reviewArray = [];
+  let reviewCountVariation = Math.floor(avgReviews / 2);
+
   for(let i = 0; i < maxRooms; i++) {
 
 
@@ -172,6 +176,10 @@ function generateRooms(maxRooms) {
     let nightlyFee = nightlyFeeOptions[Math.floor(randomNumber() * nightlyFeeOptions.length)];
     let cleaningFee = cleaningFeeOptions[Math.floor(randomNumber() * cleaningFeeOptions.length)];
     let serviceFee = serviceFeeRange[Math.floor(randomNumber() * serviceFeeRange.length)];
+    //review data info
+    let addOrSubtract = (randomNumber() < 0.5) ? 1 : - 1;
+    let numReviews = avgReviews + (addOrSubtract *  Math.floor(reviewCountVariation * randomNumber()));
+    let averageScore = Math.min(Math.max((randomNumber() * 5 + 1).toPrecision(3),1), 5);
 
     roomArray.push({
       'roomId': roomId,
@@ -179,7 +187,9 @@ function generateRooms(maxRooms) {
       'minReservation': minReservation,
       'nightlyFee': nightlyFee,
       'cleaningFee': cleaningFee,
-      'serviceFee': serviceFee
+      'serviceFee': serviceFee,
+      'reviews': numReviews,
+      'rating': averageScore
     });
   }
   console.log(`${roomArray.length} room records created.`);
@@ -343,4 +353,4 @@ let scriptStartDate = new Date();
 let scriptStartTime = scriptStartDate.getHours() + ":" + scriptStartDate.getMinutes() + ":" + scriptStartDate.getSeconds();
 console.log("***********************************************************************");
 console.log(`Seeding script started at ${scriptStartTime}`);
-saveRooms(saveReviews);
+saveRooms(saveReservations);
