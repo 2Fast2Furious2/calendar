@@ -88,9 +88,11 @@ class App extends React.Component {
   }
 
   // get all the informations and reservations of a specify room with the input room id
+  //TBD: convert to use Postgres data format
   getRoomData(roomID) {
     $.get(`/rooms/${roomID}/reservation`, (data) => {
       console.log("GET request succeed");
+      console.log(data);
       this.setState({
         roomId: roomID,
         allData : data,
@@ -107,8 +109,10 @@ class App extends React.Component {
          * Since the time zones are different, in order to prevent the dated rounded to the last date,
          * we need to take out the time zone by using slice
          */
-        booked_date : data.map(reservation => reservation.booked_date.slice(0, 10))
+        //TBD: convert booked date from Postgres to individual dates
+        //booked_date : data.map(reservation => reservation.booked_date.slice(0, 10))
       });
+      console.log(this.state);
     });
   }
 

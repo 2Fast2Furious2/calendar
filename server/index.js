@@ -39,6 +39,21 @@ app.get('/rooms/:room_id/reservation', (req, res) => {
   });
 });
 
+app.post('/rooms/:room_id/reservation', (req, res) => {
+  let roomId = [req.params.room_id];
+  let startDate = moment(req.body.check_in);
+  let endDate = moment(req.body.check_out);
+
+  db.createNewReservation(roomId,startDate.format('YYYY-MM-DD'), endDate.format('YYYY-MM-DD'), (err, results) => {
+    if(err) {
+      console.log("Failed to insert record: ", err);
+      res.status(404).send(err);
+    } else {
+      res.status(202).send(results);
+    }
+  });
+});
+
 
 //----*NOTE: OLD ROUTES FOR MYSQL*----//
 // Route
@@ -62,34 +77,34 @@ app.get('/rooms/:room_id/reservation', (req, res) => {
 // });
 
 // POST request to '/rooms/:room_id/reservation' route
-app.post('/rooms/:room_id/reservation', (req, res) => {
-  // get the check_in date from request
-  let check_in = moment(req.body.check_in);
-  // get the check_out date from request
-  let check_out = moment(req.body.check_out);
-  // create a list of dates in YYYY-MM-DD format that started from the check_in date to the check_out date
-  let dates = [];
-  for (let i = check_in; i <= check_out; check_in.add(1, 'days')) {
-    dates.push(check_in.format('YYYY-MM-DD'));
-  }
-  // iterate over the dates array
-  for (let i = 0; i < dates.length; i++) {
-    // declare query string
-    let queryString = 'INSERT INTO reservations (room_id, booked_date) VALUES (?, ?)';
-    // declare query params
-    let queryParams = [req.params.room_id, dates[i]];
-    // insert current date into reservations table where room_id is equal to the room_id from the endpoint
-    db.connection.query(queryString, queryParams, (error, results, fields) => {
-      if (error) {
-        console.log(`Failed to insert data to reservations table where room id = ${req.params.room_id}: `, error);
-        res.status(404).send(error);
-      } else {
-        console.log(`Success to insert data to reservations table where room id = ${req.params.room_id}`);
-        res.status(200).send();
-      }
-    });
-  }
-});
+// app.post('/rooms/:room_id/reservation', (req, res) => {
+//   // get the check_in date from request
+//   let check_in = moment(req.body.check_in);
+//   // get the check_out date from request
+//   let check_out = moment(req.body.check_out);
+//   // create a list of dates in YYYY-MM-DD format that started from the check_in date to the check_out date
+//   let dates = [];
+//   for (let i = check_in; i <= check_out; check_in.add(1, 'days')) {
+//     dates.push(check_in.format('YYYY-MM-DD'));
+//   }
+//   // iterate over the dates array
+//   for (let i = 0; i < dates.length; i++) {
+//     // declare query string
+//     let queryString = 'INSERT INTO reservations (room_id, booked_date) VALUES (?, ?)';
+//     // declare query params
+//     let queryParams = [req.params.room_id, dates[i]];
+//     // insert current date into reservations table where room_id is equal to the room_id from the endpoint
+//     db.connection.query(queryString, queryParams, (error, results, fields) => {
+//       if (error) {
+//         console.log(`Failed to insert data to reservations table where room id = ${req.params.room_id}: `, error);
+//         res.status(404).send(error);
+//       } else {
+//         console.log(`Success to insert data to reservations table where room id = ${req.params.room_id}`);
+//         res.status(200).send();
+//       }
+//     });
+//   }
+// });
 
 // Start server
 app.listen(PORT, () => {
